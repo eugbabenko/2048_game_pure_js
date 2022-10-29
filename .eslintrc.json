@@ -1,0 +1,12 @@
+{
+    "extends": ["airbnb", "prettier"],
+    "plugins": ["prettier"],
+    "rules": {
+        "global-require": "off",
+        "no-undef": "off",
+        "no-console": "warn",
+        "no-use-before-define": "warn",
+        "no-plusplus": "off",
+        "no-continue": "off"
+    }
+}

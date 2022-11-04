@@ -8,7 +8,7 @@ module.exports = {
   context: path.resolve(__dirname, 'src'),
   mode: 'development',
   entry: {
-    main: ['@babel/polyfill' ,'./js/main.js'],
+    main: ['@babel/polyfill', './js/main.js'],
   },
   output: {
     filename: '[name][contenthash].js',
@@ -33,8 +33,8 @@ module.exports = {
       ],
     }),
     new MiniCssExtractPlugin({
-        filename: '[name][contenthash].css'
-    })
+      filename: '[name][contenthash].css',
+    }),
   ],
   module: {
     rules: [
@@ -64,12 +64,12 @@ module.exports = {
         test: /\.m?js$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env']
-          }
-        }
-      }
+            presets: ['@babel/preset-env'],
+          },
+        },
+      },
     ],
   },
 };

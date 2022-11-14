@@ -44,8 +44,21 @@ hr {
   height: 40px;
   text-align: center;
   cursor: pointer;
-
 }
+
+#table {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3rem;
+
+
+  th, td {
+    border: 1px solid #cdc1b5;
+    padding: 15px 15px;
+  }
+}
+
 
 
 /* colored tiles */

@@ -26,7 +26,10 @@ export default class Controller {
 
     document.querySelector('#restart-button').addEventListener('click', () => {
       const board = document.querySelector('#board');
+      const score = document.querySelector('#score');
+      score.innerHTML = 0;
       board.innerHTML = '';
+      this.dom.updateScore(this.model.score)
       this.model.score = 0;
       this.dom.setGame();
     })
@@ -116,4 +119,5 @@ export default class Controller {
       }
     }
   }
+
 }

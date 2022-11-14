@@ -14,7 +14,7 @@ export default class DOM {
     for (let r = 0; r < this.model.rows; r++) {
       for (let c = 0; c < this.model.columns; c++) {
         this.tile = document.createElement('div');
-        this.tile.id = `${r.toString()  }-${  c.toString()}`;
+        this.tile.id = `${r.toString()}-${c.toString()}`;
         this.num = this.model.board[r][c];
         this.updateTile(this.tile, this.num);
         document.getElementById('board').append(this.tile);
@@ -32,7 +32,7 @@ export default class DOM {
     if (num > 0) {
       tile.innerText = num.toString();
       if (num <= 4096) {
-        tile.classList.add(`x${  num.toString()}`);
+        tile.classList.add(`x${num.toString()}`);
       } else {
         tile.classList.add('x8192');
       }
@@ -41,7 +41,8 @@ export default class DOM {
 
   setTwo() {
     if (!this.model.hasEmptyTile()) {
-      return;
+      this.gameOver();
+      return
     }
     this.found = false;
     while (!this.found) {
@@ -51,12 +52,29 @@ export default class DOM {
       if (this.model.board[this.row][this.column] === 0) {
         this.model.board[this.row][this.column] = 2;
         this.tile = document.getElementById(
-          `${this.row.toString()  }-${  this.column.toString()}`
+          `${this.row.toString()}-${this.column.toString()}`
         );
         this.tile.innerText = '2';
         this.tile.classList.add('x2');
         this.found = true;
       }
     }
+  }
+
+  updateScore(score) {
+    this.table = document.querySelector('tbody');
+    this.tr = document.createElement('tr');
+    this.tdScore = document.createElement('td');
+    this.tdDate = document.createElement('td');
+    this.tdDate.textContent = new Date().toDateString();
+    this.tdScore.textContent = score;
+    this.tr.append(this.tdDate);
+    this.tr.append(this.tdScore);
+    this.table.append(this.tr)
+  }
+
+  gameOver() {
+    alert('Lose')
+    document.querySelector('#restart-button').click()
   }
 }

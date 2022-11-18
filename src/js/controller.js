@@ -1,123 +1,189 @@
 export default class Controller {
-  constructor(model, dom) {
+  constructor(view, model, dom) {
+    this.view = view;
     this.model = model;
     this.dom = dom;
   }
 
-  run() {
-    this.dom.setGame();
-    
-    document.addEventListener('keyup', (e) => {
+  initGame() {
+    // subscribe to click
+    this.dom.getDocument().addEventListener('keyup', (e) => {
       if (e.code === 'ArrowLeft') {
         this.slideLeft();
-        this.dom.setTwo();
+        this.setNumberTwoOnBoard();
       } else if (e.code === 'ArrowRight') {
         this.slideRight();
-        this.dom.setTwo();
+        this.setNumberTwoOnBoard();
       } else if (e.code === 'ArrowUp') {
         this.slideUp();
-        this.dom.setTwo();
+        this.setNumberTwoOnBoard();
       } else if (e.code === 'ArrowDown') {
         this.slideDown();
-        this.dom.setTwo();
+        this.setNumberTwoOnBoard();
       }
-      document.getElementById('score').innerText = this.model.score;
+      this.view.displayScore();
     });
 
-    document.querySelector('#restart-button').addEventListener('click', () => {
-      const board = document.querySelector('#board');
-      const score = document.querySelector('#score');
-      score.innerHTML = 0;
-      board.innerHTML = '';
-      this.dom.updateScore(this.model.score)
-      this.model.score = 0;
-      this.dom.setGame();
-    })
+    this.dom.addListener('#restart-button', 'click', () => {
+      this.dom.getElementBySelector('#board').innerHTML = '';
+      this.dom.getElementBySelector('#score').innerHTML = 0;
+      this.model.setHistory(this.model.getScore());
+      this.view.displayHistory();
+      this.model.setScore(false);
+      this.startNewGame();
+    });
+
+    // this.dom.addListener(..., this.onClick)
+    // in callback
   }
 
+  run() {
+    this.startNewGame();
+  }
 
   filterZero(row) {
     return row.filter((num) => num !== 0); // create new array of all nums != 0
   }
 
+  startNewGame() {
+    this.model.setBoard([
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ]);
+
+    this.view.displayBoard(
+      this.model.getBoard(),
+      this.model.getRows(),
+      this.model.getColumns()
+    );
+
+    this.setNumberTwoOnBoard();
+    this.setNumberTwoOnBoard();
+  }
+
+  setNumberTwoOnBoard() {
+    if (!this.checkHasEmptyTile()) {
+      return;
+    }
+    let found = false;
+    while (!found) {
+      // find random row and column to place a 2 in
+      const row = Math.floor(Math.random() * this.model.getRows());
+      const column = Math.floor(Math.random() * this.model.getColumns());
+      if (this.model.getBoard()[row][column] === 0) {
+        this.model.getBoard()[row][column] = 2;
+        const tile = this.dom.getElementByID(
+          `${row.toString()}-${column.toString()}`
+        );
+        tile.innerText = '2';
+        tile.classList.add('x2');
+        found = true;
+      }
+    }
+  }
+
+  checkHasEmptyTile() {
+    for (let r = 0; r < this.model.getRows(); r++) {
+      for (let c = 0; c < this.model.getColumns(); c++) {
+        if (this.model.getBoard()[r][c] === 0) {
+          // at least one zero in the board
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   slide(row) {
-    this.row = this.filterZero(row); 
+    this.row = this.filterZero(row);
     for (let i = 0; i < this.row.length - 1; i++) {
       if (this.row[i] === this.row[i + 1]) {
         this.row[i] *= 2;
         this.row[i + 1] = 0;
-        this.model.score += this.row[i];
+        this.model.setScore(this.row[i]);
       }
-    } 
-    this.row = this.filterZero(this.row); 
-    while (this.row.length < this.model.columns) {
+    }
+    this.row = this.filterZero(this.row);
+    while (this.row.length < this.model.getColumns()) {
       this.row.push(0);
-    } 
+    }
     return this.row;
   }
 
   slideLeft() {
-    for (let r = 0; r < this.model.rows; r++) {
-      this.row = this.slide(this.model.board[r]);
-      this.model.board[r] = this.row;
-      
-      for (let c = 0; c < this.model.columns; c++) {
-        this.tile = document.getElementById(`${r.toString()  }-${  c.toString()}`);
-        this.num = this.model.board[r][c];
-        this.dom.updateTile(this.tile, this.num);
+    for (let r = 0; r < this.model.getRows(); r++) {
+      const row = this.slide(this.model.getBoard()[r]);
+      this.model.setBoardRow(r, row);
+
+      for (let c = 0; c < this.model.getColumns(); c++) {
+        const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
+        const num = this.model.getBoard()[r][c];
+        this.view.displayTile(tile, num);
       }
     }
   }
 
   slideRight() {
-    for (let r = 0; r < this.model.rows; r++) {
-      this.row = this.slide(this.model.board[r].reverse());
-      this.model.board[r] = this.row.reverse();
+    for (let r = 0; r < this.model.getRows(); r++) {
+      const row = this.slide(this.model.getBoard()[r].reverse());
+      this.model.setBoardRow(r, row.reverse());
 
-      for (let c = 0; c < this.model.columns; c++) {
-        this.tile = document.getElementById(`${r.toString()  }-${  c.toString()}`);
-        this.num = this.model.board[r][c];
-        this.dom.updateTile(this.tile, this.num);
+      for (let c = 0; c < this.model.getColumns(); c++) {
+        const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
+        const num = this.model.getBoard()[r][c];
+        this.view.displayTile(tile, num);
       }
     }
   }
 
   slideUp() {
-    for (let c = 0; c < this.model.columns; c++) {
-      this.row = this.slide([
-        this.model.board[0][c],
-        this.model.board[1][c],
-        this.model.board[2][c],
-        this.model.board[3][c],
+    for (let c = 0; c < this.model.getColumns(); c++) {
+      const row = this.slide([
+        this.model.getBoard()[0][c],
+        this.model.getBoard()[1][c],
+        this.model.getBoard()[2][c],
+        this.model.getBoard()[3][c],
       ]);
 
-      for (let r = 0; r < this.model.rows; r++) {
-        this.model.board[r][c] = this.row[r];
-        this.tile = document.getElementById(`${r.toString()  }-${  c.toString()}`);
-        this.num = this.model.board[r][c];
-        this.dom.updateTile(this.tile, this.num);
+      for (let r = 0; r < this.model.getRows(); r++) {
+        this.model.getBoard()[r][c] = row[r];
+        const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
+        const num = this.model.getBoard()[r][c];
+        this.view.displayTile(tile, num);
       }
     }
   }
 
   slideDown() {
-    for (let c = 0; c < this.model.columns; c++) {
-      this.row = this.slide(
+    for (let c = 0; c < this.model.getColumns(); c++) {
+      const row = this.slide(
         [
-          this.model.board[0][c],
-          this.model.board[1][c],
-          this.model.board[2][c],
-          this.model.board[3][c],
+          this.model.getBoard()[0][c],
+          this.model.getBoard()[1][c],
+          this.model.getBoard()[2][c],
+          this.model.getBoard()[3][c],
         ].reverse()
       ).reverse();
 
-      for (let r = 0; r < this.model.rows; r++) {
-        this.model.board[r][c] = this.row[r];
-        this.tile = document.getElementById(`${r.toString()  }-${  c.toString()}`);
-        this.num = this.model.board[r][c];
-        this.dom.updateTile(this.tile, this.num);
+      for (let r = 0; r < this.model.getRows(); r++) {
+        this.model.getBoard()[r][c] = row[r];
+        const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
+        const num = this.model.getBoard()[r][c];
+        this.view.displayTile(tile, num);
       }
     }
   }
 
+  checkEndOfGame() {}
+
+  onClick() {
+    // call methods right, left, up, top, checkEndOfGame
+    // calculate new board
+    // call this.model.setBoard()
+    // call this.view.displayBoard()
+    // call this.view.displayScore()
+    // call this.view.displayHistory()
+  }
 }

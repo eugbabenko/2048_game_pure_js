@@ -6,7 +6,6 @@ export default class Controller {
   }
 
   initGame() {
-    // subscribe to click
     this.dom.getDocument().addEventListener('keyup', (e) => {
       if (e.code === 'ArrowLeft') {
         this.slideLeft();
@@ -22,6 +21,7 @@ export default class Controller {
         this.setNumberTwoOnBoard();
       }
       this.view.displayScore();
+      this.view.displayBestScore();
     });
 
     this.dom.addListener('#restart-button', 'click', () => {
@@ -32,9 +32,6 @@ export default class Controller {
       this.model.setScore(false);
       this.startNewGame();
     });
-
-    // this.dom.addListener(..., this.onClick)
-    // in callback
   }
 
   run() {
@@ -65,6 +62,7 @@ export default class Controller {
 
   setNumberTwoOnBoard() {
     if (!this.checkHasEmptyTile()) {
+      this.checkEndOfGame();
       return;
     }
     let found = false;
@@ -103,6 +101,7 @@ export default class Controller {
         this.row[i] *= 2;
         this.row[i + 1] = 0;
         this.model.setScore(this.row[i]);
+        this.model.setBestScore(this.model.getScore());
       }
     }
     this.row = this.filterZero(this.row);
@@ -114,8 +113,10 @@ export default class Controller {
 
   slideLeft() {
     for (let r = 0; r < this.model.getRows(); r++) {
-      const row = this.slide(this.model.getBoard()[r]);
-      this.model.setBoardRow(r, row);
+      const board = this.model.getBoard();
+      const row = this.slide(board[r]);
+      board[r] = row;
+      this.model.setBoard(board);
 
       for (let c = 0; c < this.model.getColumns(); c++) {
         const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
@@ -127,8 +128,10 @@ export default class Controller {
 
   slideRight() {
     for (let r = 0; r < this.model.getRows(); r++) {
-      const row = this.slide(this.model.getBoard()[r].reverse());
-      this.model.setBoardRow(r, row.reverse());
+      const board = this.model.getBoard();
+      const row = this.slide(board[r].reverse());
+      board[r] = row.reverse();
+      this.model.setBoard(board);
 
       for (let c = 0; c < this.model.getColumns(); c++) {
         const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
@@ -140,17 +143,19 @@ export default class Controller {
 
   slideUp() {
     for (let c = 0; c < this.model.getColumns(); c++) {
+      const board = this.model.getBoard();
       const row = this.slide([
-        this.model.getBoard()[0][c],
-        this.model.getBoard()[1][c],
-        this.model.getBoard()[2][c],
-        this.model.getBoard()[3][c],
+        board[0][c],
+        board[1][c],
+        board[2][c],
+        board[3][c],
       ]);
 
       for (let r = 0; r < this.model.getRows(); r++) {
-        this.model.getBoard()[r][c] = row[r];
+        board[r][c] = row[r];
+        this.model.setBoard(board);
         const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
-        const num = this.model.getBoard()[r][c];
+        const num = board[r][c];
         this.view.displayTile(tile, num);
       }
     }
@@ -158,32 +163,61 @@ export default class Controller {
 
   slideDown() {
     for (let c = 0; c < this.model.getColumns(); c++) {
+      const board = this.model.getBoard();
       const row = this.slide(
-        [
-          this.model.getBoard()[0][c],
-          this.model.getBoard()[1][c],
-          this.model.getBoard()[2][c],
-          this.model.getBoard()[3][c],
-        ].reverse()
+        [board[0][c], board[1][c], board[2][c], board[3][c]].reverse()
       ).reverse();
 
       for (let r = 0; r < this.model.getRows(); r++) {
-        this.model.getBoard()[r][c] = row[r];
+        board[r][c] = row[r];
+        this.model.setBoard(board);
         const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
-        const num = this.model.getBoard()[r][c];
+        const num = board[r][c];
         this.view.displayTile(tile, num);
       }
     }
   }
 
-  checkEndOfGame() {}
-
-  onClick() {
-    // call methods right, left, up, top, checkEndOfGame
-    // calculate new board
-    // call this.model.setBoard()
-    // call this.view.displayBoard()
-    // call this.view.displayScore()
-    // call this.view.displayHistory()
+  checkEndOfGame() {
+    let isOver = true;
+    for (let j = 0; j < this.model.getRows(); j++) {
+      for (let i = 0; i < this.model.getRows() - 1; i++) {
+        const currentTile = parseInt(
+          this.dom.getElementByID(`${i}-${j}`).innerHTML,
+          10
+        );
+        const nextTile = parseInt(
+          this.dom.getElementByID(`${i + 1}-${j}`).innerHTML,
+          10
+        );
+        if (currentTile === nextTile) {
+          isOver = false;
+          break;
+        }
+      }
+    }
+    if (isOver) {
+      for (let i = 0; i < this.model.getRows(); i++) {
+        for (let j = 0; j < this.model.getRows() - 1; j++) {
+          const currentTile = parseInt(
+            this.dom.getElementByID(`${i}-${j}`).innerHTML,
+            10
+          );
+          const nextTile = parseInt(
+            this.dom.getElementByID(`${i}-${j + 1}`).innerHTML,
+            10
+          );
+          if (currentTile === nextTile) {
+            isOver = false;
+            break;
+          }
+        }
+      }
+    }
+    if (isOver) {
+      alert('Game over!');
+      this.dom.getElementBySelector('#restart-button').click();
+    }
+    return false;
   }
 }

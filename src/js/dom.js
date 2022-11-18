@@ -1,8 +1,4 @@
 export default class DOM {
-  constructor(model) {
-    this.model = model;
-  }
-
   createElement(element) {
     return document.createElement(element);
   }

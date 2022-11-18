@@ -9,14 +9,5 @@ const model = new Model();
 const view = new View(dom, model);
 const controller = new Controller(view, model, dom);
 
-controller.initGame()
-controller.run()
-
-
-
-
-
-
-
-
-
+controller.initGame();
+controller.run();

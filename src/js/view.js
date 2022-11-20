@@ -1,15 +1,14 @@
 export default class View {
-  constructor(dom, model) {
+  constructor(dom) {
     this.dom = dom;
-    this.model = model;
   }
 
   displayBoard(board, rows, columns) {
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < columns; c++) {
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
         this.tile = this.dom.createElement('div');
-        this.tile.id = `${r.toString()}-${c.toString()}`;
-        this.num = board[r][c];
+        this.tile.id = `${i.toString()}-${j.toString()}`;
+        this.num = board[i][j];
         this.displayTile(this.tile, this.num);
         this.dom.getElementByID('board').append(this.tile);
       }
@@ -30,20 +29,19 @@ export default class View {
     }
   }
 
-  displayScore() {
-    this.dom.getElementByID('score').innerText = this.model.getScore();
+  displayScore(score) {
+    this.dom.getElementByID('score').innerText = score;
   }
 
-  displayBestScore() {
-    this.dom.getElementByID('best-score').innerText = this.model.getBestScore();
+  displayBestScore(bestScore) {
+    this.dom.getElementByID('best-score').innerText = bestScore;
   }
 
-  displayHistory() {
+  displayHistory(history) {
     const table = this.dom.getElementBySelector('tbody');
-    let history = this.model.getHistory();
     table.innerHTML = `<tr><th>Date</th><th>Score</th></tr>`;
-    if (this.model.getHistory().length > 4) {
-      history = this.model.getHistory().slice(-4);
+    if (history.length > 4) {
+      history = history.slice(-4);
     }
 
     history.forEach((row) => {

@@ -9,33 +9,30 @@ export default class Controller {
     this.dom.getDocument().addEventListener('keyup', (e) => {
       if (e.code === 'ArrowLeft') {
         this.slideLeft();
-        this.setNumberTwoOnBoard();
       } else if (e.code === 'ArrowRight') {
         this.slideRight();
-        this.setNumberTwoOnBoard();
       } else if (e.code === 'ArrowUp') {
         this.slideUp();
-        this.setNumberTwoOnBoard();
       } else if (e.code === 'ArrowDown') {
         this.slideDown();
-        this.setNumberTwoOnBoard();
       }
-      this.view.displayScore();
-      this.view.displayBestScore();
+      this.setNumberTwoOnBoard();
+      this.view.displayScore(this.model.getScore());
+      this.view.displayBestScore(this.model.getBestScore());
     });
 
-    this.dom.addListener('#restart-button', 'click', () => {
-      this.dom.getElementBySelector('#board').innerHTML = '';
-      this.dom.getElementBySelector('#score').innerHTML = 0;
-      this.model.setHistory(this.model.getScore());
-      this.view.displayHistory();
-      this.model.setScore(false);
-      this.startNewGame();
-    });
+    this.dom.addListener('#restart-button', 'click', () => this.startNewGame());
   }
 
   run() {
-    this.startNewGame();
+    this.view.displayBoard(
+      this.model.getBoard(),
+      this.model.getRows(),
+      this.model.getColumns()
+    );
+    this.view.displayScore(this.model.getScore());
+    this.view.displayBestScore(this.model.getBestScore());
+    this.view.displayHistory(this.model.getHistory());
   }
 
   filterZero(row) {
@@ -43,19 +40,17 @@ export default class Controller {
   }
 
   startNewGame() {
+    this.dom.getElementBySelector('#board').innerHTML = '';
+    this.dom.getElementBySelector('#score').innerHTML = 0;
+    this.model.setHistory(this.model.getScore());
+    this.model.setScore(0);
     this.model.setBoard([
       [0, 0, 0, 0],
       [0, 0, 0, 0],
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ]);
-
-    this.view.displayBoard(
-      this.model.getBoard(),
-      this.model.getRows(),
-      this.model.getColumns()
-    );
-
+    this.run();
     this.setNumberTwoOnBoard();
     this.setNumberTwoOnBoard();
   }
@@ -70,8 +65,10 @@ export default class Controller {
       // find random row and column to place a 2 in
       const row = Math.floor(Math.random() * this.model.getRows());
       const column = Math.floor(Math.random() * this.model.getColumns());
-      if (this.model.getBoard()[row][column] === 0) {
-        this.model.getBoard()[row][column] = 2;
+      const board = this.model.getBoard();
+      if (board[row][column] === 0) {
+        board[row][column] = 2;
+        this.model.setBoard(board);
         const tile = this.dom.getElementByID(
           `${row.toString()}-${column.toString()}`
         );
@@ -116,12 +113,12 @@ export default class Controller {
       const board = this.model.getBoard();
       const row = this.slide(board[r]);
       board[r] = row;
-      this.model.setBoard(board);
 
       for (let c = 0; c < this.model.getColumns(); c++) {
         const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
         const num = this.model.getBoard()[r][c];
         this.view.displayTile(tile, num);
+        this.model.setBoard(board);
       }
     }
   }
@@ -131,12 +128,12 @@ export default class Controller {
       const board = this.model.getBoard();
       const row = this.slide(board[r].reverse());
       board[r] = row.reverse();
-      this.model.setBoard(board);
 
       for (let c = 0; c < this.model.getColumns(); c++) {
         const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
         const num = this.model.getBoard()[r][c];
         this.view.displayTile(tile, num);
+        this.model.setBoard(board);
       }
     }
   }
@@ -153,10 +150,10 @@ export default class Controller {
 
       for (let r = 0; r < this.model.getRows(); r++) {
         board[r][c] = row[r];
-        this.model.setBoard(board);
         const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
         const num = board[r][c];
         this.view.displayTile(tile, num);
+        this.model.setBoard(board);
       }
     }
   }
@@ -170,10 +167,10 @@ export default class Controller {
 
       for (let r = 0; r < this.model.getRows(); r++) {
         board[r][c] = row[r];
-        this.model.setBoard(board);
         const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
         const num = board[r][c];
         this.view.displayTile(tile, num);
+        this.model.setBoard(board);
       }
     }
   }

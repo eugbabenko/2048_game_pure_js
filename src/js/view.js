@@ -1,3 +1,5 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-param-reassign */
 export default class View {
   constructor(dom) {
     this.dom = dom;

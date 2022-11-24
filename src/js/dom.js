@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 export default class DOM {
   createElement(element) {
     return document.createElement(element);

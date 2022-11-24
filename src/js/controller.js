@@ -176,6 +176,7 @@ export default class Controller {
   }
 
   checkEndOfGame() {
+    // First step: checking for the same value vertically
     let isOver = true;
     for (let j = 0; j < this.model.getRows(); j++) {
       for (let i = 0; i < this.model.getRows() - 1; i++) {
@@ -193,6 +194,8 @@ export default class Controller {
         }
       }
     }
+
+    // Second step: checking for the same value horizontally
     if (isOver) {
       for (let i = 0; i < this.model.getRows(); i++) {
         for (let j = 0; j < this.model.getRows() - 1; j++) {
@@ -213,7 +216,7 @@ export default class Controller {
     }
     if (isOver) {
       alert('Game over!');
-      this.dom.getElementBySelector('#restart-button').click();
+      this.startNewGame();
     }
     return false;
   }

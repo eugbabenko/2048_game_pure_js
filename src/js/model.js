@@ -3,7 +3,8 @@ const LOCAL_STORAGE_KEY = 'game_data';
 export default class Model {
   constructor(localStorage) {
     this.localStorage = localStorage;
-    const {board, history, score, bestScore} = this.getFromLocalStorage() || {};
+    const { board, history, score, bestScore } =
+      this.getFromLocalStorage() || {};
     this.board = board || [
       [0, 0, 0, 0],
       [0, 0, 0, 0],
@@ -31,13 +32,13 @@ export default class Model {
 
   setBoard(board) {
     this.board = board;
-    this.saveToLocalStorage()
+    this.saveToLocalStorage();
   }
 
   setScore(score) {
     if (!score) this.score = 0;
     this.score += score;
-    this.saveToLocalStorage()
+    this.saveToLocalStorage();
   }
 
   getScore() {
@@ -48,7 +49,7 @@ export default class Model {
     const bestScore = Math.max(...this.history.map((el) => el[1]));
     if (score < bestScore) return;
     this.bestScore = score;
-    this.saveToLocalStorage()
+    this.saveToLocalStorage();
   }
 
   getBestScore() {
@@ -61,22 +62,23 @@ export default class Model {
 
   setHistory(history) {
     this.history.push([new Date().toDateString(), history]);
-    this.saveToLocalStorage()
+    this.saveToLocalStorage();
   }
 
   saveToLocalStorage() {
-    this.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
-      score: this.score,
-      bestScore: this.bestScore,
-      board: this.board,
-      history: this.history,
-    }))
+    this.localStorage.setItem(
+      LOCAL_STORAGE_KEY,
+      JSON.stringify({
+        score: this.score,
+        bestScore: this.bestScore,
+        board: this.board,
+        history: this.history,
+      })
+    );
   }
 
-  getFromLocalStorage() { 
+  getFromLocalStorage() {
     const gameData = this.localStorage.getItem(LOCAL_STORAGE_KEY);
-    return JSON.parse(gameData)
+    return JSON.parse(gameData);
   }
-
-
 }

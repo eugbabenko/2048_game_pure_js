@@ -30,6 +30,10 @@ module.exports = {
           from: path.resolve(__dirname, 'src/icon.ico'),
           to: path.resolve(__dirname, 'build'),
         },
+        {
+          from: path.resolve(__dirname, 'src/click.mp3'),
+          to: path.resolve(__dirname, 'build'),
+        },
       ],
     }),
     new MiniCssExtractPlugin({

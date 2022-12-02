@@ -1,7 +1,8 @@
 const LOCAL_STORAGE_KEY = 'game_data';
 
 export default class Model {
-  constructor(localStorage) {
+  constructor(localStorage, observer) {
+    this.observer = observer;
     this.localStorage = localStorage;
     const { board, history, score, bestScore } =
       this.getFromLocalStorage() || {};
@@ -16,6 +17,17 @@ export default class Model {
     this.bestScore = bestScore || 0;
     this.rows = 4;
     this.columns = 4;
+  }
+
+  notifyObserver() {
+    this.observer.notify({
+        rows: this.rows,
+        columns: this.columns,
+        score: this.score,
+        bestScore: this.bestScore,
+        board: this.board,
+        history: this.history,
+    })
   }
 
   getRows() {
@@ -63,6 +75,7 @@ export default class Model {
   setHistory(history) {
     this.history.push([new Date().toDateString(), history]);
     this.saveToLocalStorage();
+
   }
 
   saveToLocalStorage() {
@@ -75,7 +88,8 @@ export default class Model {
         history: this.history,
       })
     );
-  }
+    this.notifyObserver() 
+    }
 
   getFromLocalStorage() {
     const gameData = this.localStorage.getItem(LOCAL_STORAGE_KEY);

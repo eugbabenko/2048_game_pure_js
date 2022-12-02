@@ -16,8 +16,6 @@ export default class Observer {
   }
 
   notify(data) {
-    if (this.observers.length > 0) {
-      this.observers.forEach((observer) => observer(data));
-    }
+    this.observers.forEach(observer => observer(data))
   }
 }

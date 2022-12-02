@@ -8,10 +8,10 @@ import Observer from './Observer';
 
 const localStorage = new LocalStorage();
 const dom = new DOM();
-const model = new Model(localStorage);
-const view = new View(dom);
-const controller = new Controller(view, model, dom);
 const observer = new Observer();
+const model = new Model(localStorage, observer);
+const view = new View(dom, observer);
+const controller = new Controller(model, dom);
 
 controller.initGame();
 controller.run();

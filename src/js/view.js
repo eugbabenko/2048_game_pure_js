@@ -1,32 +1,38 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-param-reassign */
 export default class View {
-  constructor(dom) {
+  constructor(dom, observer) {
+    this.observer = observer;
     this.dom = dom;
+    this.observer.addObserver(({ board, rows, columns, score, bestScore, history }) => {
+      this.displayBoard(board, rows, columns);
+      this.displayScore(score);
+      this.displayHistory(history);
+      this.displayBestScore(bestScore);
+    });
   }
 
   displayBoard(board, rows, columns) {
+    const parentNode = this.dom.getElementByID('board');
+    parentNode.innerHTML = '';
+
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < columns; j++) {
-        this.tile = this.dom.createElement('div');
-        this.tile.id = `${i.toString()}-${j.toString()}`;
-        this.num = board[i][j];
-        this.displayTile(this.tile, this.num);
-        this.dom.getElementByID('board').append(this.tile);
-      }
-    }
-  }
-
-  displayTile(tile, num) {
-    tile.innerText = '';
-    tile.classList.value = ''; // clear the classList
-    tile.classList.add('tile');
-    if (num > 0) {
-      tile.innerText = num.toString();
-      if (num <= 4096) {
-        tile.classList.add(`x${num.toString()}`);
-      } else {
-        tile.classList.add('x8192');
+        const tile = this.dom.createElement('div');
+        tile.id = `${i.toString()}-${j.toString()}`;
+        const num = board[i][j];
+        tile.innerText = '';
+        tile.classList.value = ''; // clear the classList
+        tile.classList.add('tile');
+        if (num > 0) {
+          tile.innerText = num.toString();
+          if (num <= 4096) {
+            tile.classList.add(`x${num.toString()}`);
+          } else {
+            tile.classList.add('x8192');
+          }
+        }
+        this.dom.getElementByID('board').append(tile);
       }
     }
   }

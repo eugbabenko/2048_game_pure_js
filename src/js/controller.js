@@ -1,12 +1,14 @@
 export default class Controller {
-  constructor(view, model, dom) {
-    this.view = view;
+  constructor(model, dom) {
     this.model = model;
     this.dom = dom;
   }
 
   initGame() {
+    const audio = this.dom.getElementByID('audio');
+ 
     this.dom.getDocument().addEventListener('keyup', (e) => {
+      audio.play();
       if (e.code === 'ArrowLeft') {
         this.slideLeft();
       } else if (e.code === 'ArrowRight') {
@@ -17,22 +19,13 @@ export default class Controller {
         this.slideDown();
       }
       this.setNumberTwoOnBoard();
-      this.view.displayScore(this.model.getScore());
-      this.view.displayBestScore(this.model.getBestScore());
     });
 
     this.dom.addListener('#restart-button', 'click', () => this.startNewGame());
   }
 
   run() {
-    this.view.displayBoard(
-      this.model.getBoard(),
-      this.model.getRows(),
-      this.model.getColumns()
-    );
-    this.view.displayScore(this.model.getScore());
-    this.view.displayBestScore(this.model.getBestScore());
-    this.view.displayHistory(this.model.getHistory());
+      this.model.notifyObserver();
   }
 
   filterZero(row) {
@@ -69,11 +62,6 @@ export default class Controller {
       if (board[row][column] === 0) {
         board[row][column] = 2;
         this.model.setBoard(board);
-        const tile = this.dom.getElementByID(
-          `${row.toString()}-${column.toString()}`
-        );
-        tile.innerText = '2';
-        tile.classList.add('x2');
         found = true;
       }
     }
@@ -113,13 +101,7 @@ export default class Controller {
       const board = this.model.getBoard();
       const row = this.slide(board[r]);
       board[r] = row;
-
-      for (let c = 0; c < this.model.getColumns(); c++) {
-        const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
-        const num = this.model.getBoard()[r][c];
-        this.view.displayTile(tile, num);
-        this.model.setBoard(board);
-      }
+      this.model.setBoard(board);
     }
   }
 
@@ -128,13 +110,7 @@ export default class Controller {
       const board = this.model.getBoard();
       const row = this.slide(board[r].reverse());
       board[r] = row.reverse();
-
-      for (let c = 0; c < this.model.getColumns(); c++) {
-        const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
-        const num = this.model.getBoard()[r][c];
-        this.view.displayTile(tile, num);
-        this.model.setBoard(board);
-      }
+      this.model.setBoard(board);
     }
   }
 
@@ -150,11 +126,8 @@ export default class Controller {
 
       for (let r = 0; r < this.model.getRows(); r++) {
         board[r][c] = row[r];
-        const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
-        const num = board[r][c];
-        this.view.displayTile(tile, num);
-        this.model.setBoard(board);
       }
+      this.model.setBoard(board);
     }
   }
 
@@ -164,30 +137,21 @@ export default class Controller {
       const row = this.slide(
         [board[0][c], board[1][c], board[2][c], board[3][c]].reverse()
       ).reverse();
-
       for (let r = 0; r < this.model.getRows(); r++) {
         board[r][c] = row[r];
-        const tile = this.dom.getElementByID(`${r.toString()}-${c.toString()}`);
-        const num = board[r][c];
-        this.view.displayTile(tile, num);
-        this.model.setBoard(board);
       }
+      this.model.setBoard(board);
     }
   }
 
   checkEndOfGame() {
     // First step: checking for the same value vertically
     let isOver = true;
+    const board = this.model.getBoard();
     for (let j = 0; j < this.model.getRows(); j++) {
       for (let i = 0; i < this.model.getRows() - 1; i++) {
-        const currentTile = parseInt(
-          this.dom.getElementByID(`${i}-${j}`).innerHTML,
-          10
-        );
-        const nextTile = parseInt(
-          this.dom.getElementByID(`${i + 1}-${j}`).innerHTML,
-          10
-        );
+        const currentTile = board[i][j];
+        const nextTile = board[i+1][j];
         if (currentTile === nextTile) {
           isOver = false;
           break;
@@ -199,14 +163,8 @@ export default class Controller {
     if (isOver) {
       for (let i = 0; i < this.model.getRows(); i++) {
         for (let j = 0; j < this.model.getRows() - 1; j++) {
-          const currentTile = parseInt(
-            this.dom.getElementByID(`${i}-${j}`).innerHTML,
-            10
-          );
-          const nextTile = parseInt(
-            this.dom.getElementByID(`${i}-${j + 1}`).innerHTML,
-            10
-          );
+          const currentTile = board[i][j];
+          const nextTile = board[i][j + 1];
           if (currentTile === nextTile) {
             isOver = false;
             break;

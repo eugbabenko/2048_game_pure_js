@@ -4,12 +4,15 @@
   "description": "",
   "private": true,
   "main": "index.js",
+  "homepage": "https://eugbabenko/2048_game_pure_js",
   "scripts": {
     "start": "webpack --mode development",
     "build": "webpack --mode production",
     "dev": "webpack-dev-server --mode development --open",
     "lint": "eslint src --fix --ext .js",
-    "prettier": "prettier --write src/**/*.js"
+    "prettier": "prettier --write src/**/*.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +36,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "gh-pages": "^5.0.0",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.6.1",
     "postcss-loader": "^7.0.1",
